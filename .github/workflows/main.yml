@@ -1,32 +1,23 @@
-name: Django Deploy
+name: Portfolio Deployment
 
 on:
   push:
     branches:
-      - main  # Replace with your main branch name
+    - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v1
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
       with:
-        python-version: 3.0 # Replace with your Python version
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
 
-    - name: Install project dependencies
-      run: |
-        pip install -r requirements.txt 23.3 -> 23.3.1
-        python manage.py collectstatic --noinput
-        python manage.py migrate
-      env:
-        DJANGO_SETTINGS_MODULE: your_project_name.settings
-
-    - name: Deploy to production
-      run: |
-         aws s3 sync . s3://ss-key --delete
-      
+    - name: Deploy static site to S3 bucket
+      run: aws s3 sync . s3://ss-key --delete
